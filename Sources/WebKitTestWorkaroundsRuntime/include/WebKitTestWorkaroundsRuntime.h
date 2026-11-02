@@ -8,6 +8,15 @@ NS_SWIFT_UI_ACTOR
 + (BOOL)installWithError:(NSError * _Nullable * _Nullable)error NS_SWIFT_NAME(install());
 @end
 
+#if TARGET_OS_OSX
+
+NS_SWIFT_UI_ACTOR
+@interface WKTWWebViewOcclusionRuntime : NSObject
++ (BOOL)installWithError:(NSError * _Nullable * _Nullable)error NS_SWIFT_NAME(install());
+@end
+
+#endif
+
 #if TARGET_OS_IOS && TARGET_OS_SIMULATOR
 
 @interface WKTWLaunchctlResult : NSObject

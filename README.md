@@ -2,12 +2,15 @@
 
 A Swift package of opt-in workarounds for `WKWebView` tests. The Screen Time workaround uses private WebKit APIs to disable Screen Time integration and avoid the stalls reproduced in [WKWebViewScreenTimeRepro](https://github.com/lynnswap/WKWebViewScreenTimeRepro). The Intelligence Tasks workaround temporarily stops `intelligencetasksd` during tests and restores its launchd registration afterward.
 
+On macOS, the WKWebView occlusion workaround disables window occlusion detection in web views created after installation, so other windows do not stall video-loading tests.
+
 ## Requirements
 
 - Swift 6.3 or later
 - Deployment target: iOS/iPadOS 17 or macOS 14 or later
 - `ScreenTimeWorkaround.install()`: iOS/iPadOS 26.1 or macOS 26.1 or later
 - `IntelligenceTasksWorkaround`: iOS/iPadOS Simulator only
+- `WKWebViewOcclusionWorkaround.install()`: macOS only
 
 ## Installation
 
@@ -51,6 +54,21 @@ For tests that launch an app, install the workaround during app startup, in the 
 
 Once installed, it affects all new `WKWebView` instances until the process exits. Existing web views are unchanged. Installation throws if the required private APIs are unavailable, and repeated calls reuse the first installation result.
 
+## WKWebView occlusion workaround
+
+Occluded macOS test windows can leave videos at `HAVE_METADATA` and prevent navigation from finishing. Call `WKWebViewOcclusionWorkaround.install()` once in test setup, before creating any test web views:
+
+```swift
+import WebKitTestWorkarounds
+
+@MainActor
+func setUpWebViewTests() throws {
+    try WKWebViewOcclusionWorkaround.install()
+}
+```
+
+This uses private WebKit APIs and affects all new web views in the current process, including views decoded from archives, until the process exits. Existing web views are unchanged. Repeated calls reuse the first installation result and throw if installation failed. Windows must still be ordered onscreen. For tests that launch an app, install it during app startup in the app process.
+
 ## Intelligence Tasks workaround
 
 Call `IntelligenceTasksWorkaround.stop()` before testing and `restore()` afterward, both on the main actor. Always attempt restoration, including when stopping the service or running the tests fails, and report restoration errors. See [Stopping and restoring Intelligence Tasks](https://lynnswap.github.io/WebKitTestWorkarounds/documentation/webkittestworkarounds/intelligencetasks/) for a complete example.
@@ -75,7 +93,7 @@ xcodebuild test \
     -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.0'
 ```
 
-Run the Screen Time tests on a Mac:
+Run the Screen Time and window occlusion tests on a Mac:
 
 ```sh
 xcodebuild test \
