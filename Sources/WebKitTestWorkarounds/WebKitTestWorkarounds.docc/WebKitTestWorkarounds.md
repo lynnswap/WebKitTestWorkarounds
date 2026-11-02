@@ -8,6 +8,10 @@ Use ``ScreenTimeWorkaround`` to disable Screen Time integration in new web views
 and avoid stalls during tests. Install it explicitly in the process that creates
 the web views.
 
+On macOS, install `WKWebViewOcclusionWorkaround` before creating test web views.
+It disables window occlusion detection for subsequent web views in the process,
+avoiding video-loading stalls caused by occluded test windows.
+
 Use `IntelligenceTasksWorkaround` to stop `intelligencetasksd` temporarily during
 tests, then restore its launchd registration. This affects the entire current
 Simulator. Always attempt restoration after the tests, including when setup or
@@ -24,6 +28,10 @@ iOS/iPadOS Simulator.
 
 - <doc:ScreenTime>
 - ``ScreenTimeWorkaround``
+
+### WKWebView occlusion
+
+- <doc:WindowOcclusion>
 
 ### Intelligence Tasks
 
